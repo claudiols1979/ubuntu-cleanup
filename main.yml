@@ -1,0 +1,68 @@
+---
+- hosts: all
+  become: True
+  gather_facts: True
+  tasks:
+  - name: check disk size
+    shell: df -h /dev/mapper/ubuntu--vg-ubuntu--lv
+    register: disk_size
+
+  - name: debug disk size
+    debug:
+      var: disk_size.stdout
+  
+  - name: apt-get update
+    become: yes
+    become_user: root
+    apt:
+      update-cache: yes
+
+  - name: remove unnecesary packages and dependencies 
+    shell: sudo apt-get autoremove --purge -y
+    register: autoremove_results
+
+  - name: debug remove unnecesary packages
+    debug:
+      var: autoremove_results.stdout 
+
+  - name: clean Thumbnail cache
+    shell: sudo rm -rf ~/.cache/thmbnails/* 
+    ignore_errors: yes
+    register: thmbnails_results
+
+  - name: debug thumbnail cache clean
+    debug: 
+      var: thmbnails_results.stdout 
+
+  - name: check apt-cache /var/cache/apt size
+    shell: du -sh /var/cache/apt | awk '{print $1}' | sed 's/M/''/g'
+    register: du_results
+
+  - name: debug /var/cache/apt size results
+    debug:
+      msg: "/var/cache/apt cache has {{ du_results.stdout }} megabytes size"
+
+  - name: clean cache 
+    shell: sudo apt-get clean -y
+    register: cache_clean_results
+
+  - name: debug clean cache 
+    debug:
+      var: cache_clean_results.stdout  
+    
+  - name: get list of pending upgrades
+    command: apt-get --simulate dist-upgrade
+    args:
+      warn: false # don't warn us about apt having its own plugin
+    register: apt_simulate
+    changed_when: 0
+
+  - name: parse apt-get output to get list of changed packages
+    set_fact:
+      updates: '{{ apt_simulate.stdout_lines | select("match", "^Inst ") | list | splitpart(1, " ") | list | sort }}'
+    changed_when: 0
+
+  - name: show pending updates
+    debug:
+      var: updates
+    when: updates.0 is defined
