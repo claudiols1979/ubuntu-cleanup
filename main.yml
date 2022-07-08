@@ -71,3 +71,8 @@
     debug:
       var: updates
     when: updates.0 is defined
+
+  - name: update ubuntu system 
+    become: true 
+    shell: apt-get update && apt-get upgrade
+    when: "following packages will be upgraded" in apt_simulate.stdout
