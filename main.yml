@@ -27,7 +27,8 @@
       var: autoremove_results.stdout 
 
   - name: clean Thumbnail cache
-    shell: sudo rm -rf ~/.cache/thmbnails/* 
+    become: true
+    shell: rm -rf ~/.cache/thmbnails/* 
     ignore_errors: yes
     register: thmbnails_results
 
