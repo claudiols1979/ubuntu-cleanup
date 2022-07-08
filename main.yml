@@ -14,8 +14,7 @@
   - name: install systat
     become: true 
     apt: 
-      name: sysstat
-    ignore_error: yes
+      name: sysstat    
 
   - name: check cpu stat
     become: true 
