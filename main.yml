@@ -74,5 +74,5 @@
 
   - name: update ubuntu system 
     become: true 
-    shell: apt-get update && apt-get upgrade
+    shell: apt-get update -y && apt-get upgrade -y 
     when: '"following packages will be upgraded" in apt_simulate.stdout'
