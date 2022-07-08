@@ -18,7 +18,8 @@
       update-cache: yes
 
   - name: remove unnecesary packages and dependencies 
-    shell: sudo apt-get autoremove --purge -y
+    become: true
+    shell: apt-get autoremove --purge -y
     register: autoremove_results
 
   - name: debug remove unnecesary packages
