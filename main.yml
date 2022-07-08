@@ -7,9 +7,32 @@
     shell: df -h /dev/mapper/ubuntu--vg-ubuntu--lv
     register: disk_size
 
+  - name: check ram memory total
+    shell: grep MemTotal /proc/meminfo
+    register: memtotal
+
+  - name: install systat
+    become: true 
+    apt: 
+      name: sysstat
+    ignore_error: yes
+
+  - name: check cpu stat
+    become: true 
+    shell: mpstat
+    register: mpstat
+
   - name: debug disk size
     debug:
       var: disk_size.stdout
+
+  - name: debug ram memory
+    debug:
+      var: memtotal.stdout
+
+  - name: debug cpu stat
+    debug:
+      var: mpstat.stdout
   
   - name: apt-get update
     become: yes
